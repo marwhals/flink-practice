@@ -1,0 +1,5 @@
+package datastreams
+
+object EssentialStreams {
+
+}
