@@ -1,8 +1,10 @@
+import lmcoursier.internal.shaded.coursier.core.Configuration.provided
+
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.12.15"
 
-val flinkVersion = "1.13.2"
+val flinkVersion = "1.14.6"
 val postgresVersion = "42.2.2"
 val logbackVersion = "1.2.10"
 
@@ -24,4 +26,5 @@ val logging = Seq(
   "ch.qos.logback" % "logback-classic" % logbackVersion
 )
 
+//libraryDependencies ++= flinkDependencies ++ logging
 libraryDependencies ++= flinkDependencies ++ flinkConnectors ++ logging
