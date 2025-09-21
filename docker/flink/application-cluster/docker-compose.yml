@@ -4,9 +4,9 @@ services:
     image: flink:latest
     ports:
       - "8081:8081"
-    command: standalone-job --job-classname com.job.ClassName
+    command: standalone-job --job-classname com.job.ClassName # <----- need to change this class name for the submitted application
     volumes:
-      - ../artifacts:/opt/flink/usrlib
+      - ../artifacts:/opt/flink/usrlib # <---- need to put flink application JAR here
     environment:
       - |
         FLINK_PROPERTIES=
