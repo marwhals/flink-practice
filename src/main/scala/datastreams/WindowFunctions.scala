@@ -3,7 +3,6 @@ package datastreams
 import generators.gaming._
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.functions.AggregateFunction
-import org.apache.flink.streaming.api.datastream.DataStreamSink
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.scala.function.{AllWindowFunction, ProcessAllWindowFunction, ProcessWindowFunction, WindowFunction}
 import org.apache.flink.streaming.api.windowing.assigners.{EventTimeSessionWindows, GlobalWindows, SlidingEventTimeWindows, TumblingEventTimeWindows}
@@ -14,6 +13,33 @@ import org.apache.flink.util.Collector
 
 import java.time.Instant
 import scala.concurrent.duration.DurationInt
+
+/**
+ * Window Functions
+ * - A mechanism to group events by time chunks
+ * -- Need to timestamp events so Flink can group them
+ * -- Need to specify a watermarking strategy to discard the late data -- See 1)
+ *
+ * "WindowAll": a way to group all events by time
+ * "AllWindowFunction": a window handler after Flink does the splitting
+ * "Keyed streams" - Splitting the events by unique values given by a function
+ * "WindowFunction" - a window handler for keyed streams
+ *
+ *
+ * Window Types
+ * - Tumbling event time windows
+ * -- Windows don't overlap
+ * - Sliding event time windows
+ * -- windows may overlap
+ * -- given by 2 parameters: window length, sliding duration
+ * - Session windows
+ * -- all events with no more than a time gap between them
+ * -- may yield unequal windows
+ * - Global windows
+ * -- not time dependent
+ * - Custom window assigners -- advanved / not as straight forward
+ *
+ */
 
 object WindowFunctions {
 
@@ -39,7 +65,7 @@ object WindowFunctions {
     carl.online(10.seconds)
   )
 
-  // Describe how flink should extract timestamps out of events and define watermarks
+  // 1) - Describe how flink should extract timestamps out of events and define watermarks
   val eventStream: DataStream[ServerEvent] = env
     .fromCollection(events)
     .assignTimestampsAndWatermarks( // extract timestamps for events (event time) + watermarks
@@ -214,10 +240,35 @@ object WindowFunctions {
     env.execute()
   }
 
+  /**
+   * Exercise: what was the time window (continuous 2s) when we had the most registration events?
+   * - consider what kind of window functions we should use? - All Window Function
+   * - consider what kind of windows should we use? - Sliding Windows
+   */
+  class KeepWindowAndCountFunction extends AllWindowFunction[ServerEvent, (TimeWindow, Long), TimeWindow] {
+
+    override def apply(window: TimeWindow, input: Iterable[ServerEvent], out: Collector[(TimeWindow, Long)]): Unit =
+      out.collect((window, input.size))
+  }
+
+  def windowFunctionsExcercise(): Unit = {
+    val slidingWindows: DataStream[(TimeWindow, Long)] = eventStream
+      .filter(_.isInstanceOf[PlayerRegistered])
+      .windowAll(SlidingEventTimeWindows.of(Time.seconds(2), Time.seconds(1)))
+      .apply(new KeepWindowAndCountFunction)
+
+    val localWindows: List[(TimeWindow, Long)] = slidingWindows.executeAndCollect().toList
+    val bestWindow: (TimeWindow, Long) = localWindows.maxBy(_._2)
+    println(s"The best window is ${bestWindow._1} with ${bestWindow._2} registration events")
+
+
+  }
+
 
   def main(args: Array[String]): Unit = {
-//    demoCountByWindow_v3()
-    demoGlobalWindow()
+    //    demoCountByWindow_v3()
+    //    demoGlobalWindow()
+    windowFunctionsExcercise()
   }
 
 }

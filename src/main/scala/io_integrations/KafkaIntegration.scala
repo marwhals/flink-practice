@@ -92,7 +92,7 @@ object KafkaIntegration {
 
 
   def main(args: Array[String]): Unit = {
-//    readStrings()
+    //    readStrings()
     writeCustomData()
   }
 

@@ -92,6 +92,7 @@ object TimeBasedTransformations {
 
     // flink can also call onPeriodicEmit to "Maybe" emit watermarks regularly
     // Up tp us to maybe emit a watermark at these times
+
     /** Emit a watermark at certain times */
     override def onPeriodicEmit(output: WatermarkOutput) =
       output.emitWatermark(new Watermark(currentMaxTimestamp - maxDelay - 1))
@@ -112,6 +113,7 @@ object TimeBasedTransformations {
       .windowAll(TumblingEventTimeWindows.of(Time.seconds(3)))
 
     def countEventsByWindow: DataStream[String] = groupedEventsByWindow.process(new CountByWindowAll)
+
     countEventsByWindow.print()
     env.execute()
   }

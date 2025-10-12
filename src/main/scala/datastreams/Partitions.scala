@@ -43,11 +43,11 @@ object Partitions {
     )
 
     val badPartitionedStream = shoppingCartEvents.partitionCustom(
-      badPartitioner,
-      event => event.userId
-    )
-    // redistribution of data evenly -- shuffling involves data transfer through the network.
-    .shuffle
+        badPartitioner,
+        event => event.userId
+      )
+      // redistribution of data evenly -- shuffling involves data transfer through the network.
+      .shuffle
 
     partitionedStream.print()
     env.execute()

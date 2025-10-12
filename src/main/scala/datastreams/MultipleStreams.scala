@@ -66,7 +66,7 @@ object MultipleStreams {
   def demoIntervalJoins(): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-    /** Extract event times from both streams*/
+    /** Extract event times from both streams */
 
     val shoppingCartEvents =
       env.addSource(new SingleShoppingCartEventsGenerator(300, sourceId = Option("kafka")))

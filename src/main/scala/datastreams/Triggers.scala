@@ -51,11 +51,11 @@ object Triggers {
   }
 
   /**
-  Other triggers:
-  - EventTimeTrigger - happens by default when the watermark is greater than the window end time (automatic for event time windows)
-  - ProcessingTimeTrigger - fires when the current system time greater than the window end time (automatic for processing time windows)
-  - custom triggers - powerful APIs for custom firing behavior
- */
+   * Other triggers:
+   * - EventTimeTrigger - happens by default when the watermark is greater than the window end time (automatic for event time windows)
+   * - ProcessingTimeTrigger - fires when the current system time greater than the window end time (automatic for processing time windows)
+   * - custom triggers - powerful APIs for custom firing behavior
+   */
 
   def main(args: Array[String]): Unit = {
     demoCountTrigger()

@@ -9,6 +9,8 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.util.Collector
 
+import java.nio.file.Paths
+
 /**
  * Checkpoints = the entire state at an exact point in time
  * --- Need to consider that a distributed system is inherently unreliable
@@ -36,7 +38,7 @@ import org.apache.flink.util.Collector
  * - Incoming elements are buffered until state is stored
  * Steps (TODO include a diagram)
  * - The stream is running
- * - The JobManager adds a checkpoint barrier
+ * - The JobManager adds a checkpoint barrier (checkpoint element)
  * - Tasks saves its state and forwards the barrier
  * - Barrier arrives at tasks, they save their state
  * - If new elements arrive while saving, buffer them
@@ -53,8 +55,12 @@ object Checkpoints {
 
   // set checkpoint intervals
   env.getCheckpointConfig.setCheckpointInterval(5000) // a checkpoint triggered every 5s
+
+  // Resolve a path relative to your repo root
+  val checkpointPath = Paths.get("output/checkpoints").toAbsolutePath.toUri.toString
+
   // set checkpoint storage
-  env.getCheckpointConfig.setCheckpointStorage("CHECKPOINT_DIR_HERE")
+  env.getCheckpointConfig.setCheckpointStorage(checkpointPath)
 
 
   /**
@@ -72,7 +78,6 @@ object Checkpoints {
     eventsByUser.print()
     env.execute()
   }
-
 }
 
 class HighQuantityCheckpointedFunction(val threshold: Long)
@@ -108,5 +113,6 @@ class HighQuantityCheckpointedFunction(val threshold: Long)
     stateCount = context.getKeyedStateStore.getState(stateCountDescriptor)
   }
 
-  override def notifyCheckpointComplete(checkpointId: Long): Unit = ???
+  override def notifyCheckpointComplete(checkpointId: Long): Unit = ()
+  override def notifyCheckpointAborted(checkpointId: Long): Unit = ()
 }

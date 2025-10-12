@@ -101,14 +101,14 @@ object RichFunctions {
           (1 to event.quantity).map(_ => event.sku).foreach(out.collect)
       })
 
-//    itemsPurchasedStream_v3.print()
+    //    itemsPurchasedStream_v3.print()
     exerciseEnv.execute()
   }
 
 
   def main(args: Array[String]): Unit = {
-//    tenxNumbersWithLifecycle.print()
-//    env.execute()
+    //    tenxNumbersWithLifecycle.print()
+    //    env.execute()
     exercise()
   }
 }

@@ -56,9 +56,9 @@ object BroadcastState {
         //                                       ^ key   ^ first event      ^ broadcast  ^ output
         val thresholdsDescriptor = new MapStateDescriptor[String, Int]("thresholds", classOf[String], classOf[Int])
 
-        override def processBroadcastElement( newThreshold: Int,
-                                              ctx: KeyedBroadcastProcessFunction[String, ShoppingCartEvent, Int, String]#Context,
-                                              out: Collector[String]
+        override def processBroadcastElement(newThreshold: Int,
+                                             ctx: KeyedBroadcastProcessFunction[String, ShoppingCartEvent, Int, String]#Context,
+                                             out: Collector[String]
                                             ) = {
           println(s"Threshold about to be changed -- $newThreshold")
           // fetch the broadcast state = distributed variable
@@ -87,7 +87,7 @@ object BroadcastState {
   }
 
   def main(args: Array[String]): Unit = {
-//    purchaseWarnings()
+    //    purchaseWarnings()
     changingThresholds()
   }
 
