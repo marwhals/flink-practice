@@ -1,13 +1,16 @@
 package datastreams
 
 import org.apache.flink.api.common.functions.{FlatMapFunction, MapFunction, ReduceFunction}
+import org.apache.flink.api.common.serialization.SimpleStringEncoder
+import org.apache.flink.core.fs.Path
 import org.apache.flink.streaming.api.functions.ProcessFunction
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector // import TypeInformation / implicits for the data of your DataStreams
 
 /**
  * DataStreams
- * - The fundemental abstraction of a stream in Flink
+ * - The fundamental abstraction of a stream in Flink
  * - Can be transformed with FP
  * --- map
  * --- flatMap
@@ -118,8 +121,50 @@ object EssentialStreams {
     env.execute()
   }
 
+  /**
+   * Exercise: FizzBuzz on Flink
+   * - take a stream of 100 natural numbers
+   * - for every number n mod 3 == 0 fizz, n mod 5 == buzz, n mod 15 == fizz buzz
+   */
+  case class FizzBuzzResult(n: Long, output: String)
+
+  def fizzBuzzExcercise(): Unit = {
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    val numbers = env.fromSequence(1, 100)
+// can only use pattern match approach if a total funtion is provided
+    val fizzbuzz = numbers
+      .map { n =>
+        val output =
+          if (n % 3 == 0 && n % 5 == 0) "fizzbuzz"
+          else if (n % 3 == 0) "fizz"
+          else if (n % 5 == 0) "buzz"
+          else s"$n"
+        FizzBuzzResult(n, output)
+      }
+      .filter(_.output == "fizzbuzz")
+      .map(_.n)
+
+    // alternative to
+    fizzbuzz.writeAsText("output/fizzbuzz.txt").setParallelism(1)
+
+    // add a sink - describe how the hour put data should be handled
+    fizzbuzz.addSink(
+      StreamingFileSink
+        .forRowFormat(
+          new Path("output/streaming_sink"),
+          new SimpleStringEncoder[Long]("UTF-8")
+        )
+        .build()
+    ).setParallelism(1) // reflects number of "in progress files"
+
+    env.execute()
+
+  }
+
+
   def main(args: Array[String]): Unit = {
-    demoTransformations()
+//    demoTransformations()
+    fizzBuzzExcercise()
   }
 
 }

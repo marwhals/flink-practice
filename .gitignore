@@ -46,3 +46,4 @@ build/
 ### Scala ###
 .bsp/
 /checkpoints/
+/output/
